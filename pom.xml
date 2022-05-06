@@ -10,14 +10,14 @@
 	</parent>
 	<groupId>pt.nunofern</groupId>
 	<artifactId>fileSigner</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.5</version>
 	<name>File Signer</name>
 	<description>File Signer</description>
 	<scm>
 		<url>${scm.url}.git</url>
 		<connection>scm:git:${scm.url}.git</connection>
 		<developerConnection>scm:git:${scm.url}.git</developerConnection>
-		<tag>${project.version}</tag>
+		<tag>v0.0.5</tag>
 	</scm>
 	<issueManagement>
 		<system>GitHub</system>
