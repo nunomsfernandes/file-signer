@@ -6,7 +6,7 @@
         <server>
             <id>github</id>
             <username>${env.SCM_USERNAME}</username>
-            <password>${env.SCM_TOKEN}</password>
+            <password>${env.GITHUB_TOKEN}</password>
         </server>
         <server>
             <id>jfrog-cloud-central</id>
