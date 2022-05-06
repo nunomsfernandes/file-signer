@@ -1,0 +1,26 @@
+keystore:
+  config:
+    uri: classpath:keystore-dev-tests.jks
+    type: JKS
+    password: nunofernandes
+    certificate:
+      alias: nunofernandes
+signature:
+  metadata:
+    name: Nuno Fernandes
+    location: Braga
+    reason: Assinar documento
+    appName: Signer Service
+import:
+  directory: classpath:import
+export:
+  directory:
+    success: import/success
+    fail: import/fail
+application:
+  config:
+    signablefileConfig:
+      PDF:
+        try-fix-corrupted-files: false
+        try-fix-corrupted-files-temp-path: import/~temp
+

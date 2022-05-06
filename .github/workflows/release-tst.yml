@@ -1,0 +1,62 @@
+name: RELEASE TST
+on:
+  workflow_dispatch:
+    inputs:
+      releaseVersion:
+        description: "Default version to use when preparing a release."
+        required: true
+        default: "X.Y.Z"
+      developmentVersion:
+        description: "Default version to use for new local working copy."
+        required: true
+        default: "X.Y.Z-SNAPSHOT"
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Inputs
+        run: |
+          echo "ReleaseVersion: ${{ github.event.inputs.releaseVersion }}"
+          echo "DevelopmentVersion: ${{ github.event.inputs.developmentVersion }}"
+      - name: Checkout project
+        uses: actions/checkout@v3
+      - name: Cache local Maven repository
+        uses: actions/cache@v3.0.1
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: ${{ runner.os }}-maven-
+      - name: Setup Java JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Configure Git user
+        run: |
+          git config user.email "actions@github.com"
+          git config user.name "actions@github.com"
+      - name: Prepare Release
+        run: mvn release:prepare release:perform -B -s .maven_settings.xml -DreleaseVersion=${{ github.event.inputs.releaseVersion }} -DdevelopmentVersion=${{ github.event.inputs.developmentVersion }}
+        env:
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+          SCM_USERNAME: ${{ secrets.SCM_USERNAME }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build the Docker image
+        run: docker build -t nunofern/filesigner   .
+      - name: Login to Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ${{ secrets.IMAGE_CONTAINER_REPOSITORY_URL }}
+          username: ${{ secrets.IMAGE_CONTAINER_REPOSITORY_USERNAME }}
+          password: ${{ secrets.IMAGE_CONTAINER_REPOSITORY_PASSWORD }}
+      - name: Build and push to Container Registry
+        run: |
+          IMAGE_ID=$(docker images -aq nunofern/filesigner:latest)
+          docker tag $IMAGE_ID ${{ secrets.IMAGE_CONTAINER_REPOSITORY_URL }}/default-docker-local/nunofern-filesigner:${{ github.event.inputs.releaseVersion }}
+          docker push ${{ secrets.IMAGE_CONTAINER_REPOSITORY_URL }}/default-docker-local/nunofern-filesigner:${{ github.event.inputs.releaseVersion }}
+
+
+
+#Get docker containerId
+#docker ps -aqf "name=filesignerscript"
