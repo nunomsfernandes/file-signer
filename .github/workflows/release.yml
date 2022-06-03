@@ -1,4 +1,4 @@
-name: RELEASE TST
+name: RELEASE
 on:
   workflow_dispatch:
     inputs:
